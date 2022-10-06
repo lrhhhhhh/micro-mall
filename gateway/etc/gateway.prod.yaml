@@ -1,0 +1,29 @@
+Name: gateway
+Host: 0.0.0.0
+Port: 8082
+Timeout: 2000
+Telemetry:
+  Name: gateway.api
+  Endpoint: http://${JAEGER_HOST}:${JAEGER_PORT}/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
+
+Auth:
+  AccessSecret: niganmaaiyoujinitaimei
+  AccessExpire: 3600
+
+ActivityRpcConf:
+  Target: k8s://micro-mall/activity-service:8081
+  Timeout: 2000
+
+SeckillRpcConf:
+  Target: k8s://micro-mall/seckill-service:8084
+  Timeout: 2000
+
+StockRpcConf:
+  Target: k8s://micro-mall/stock-service:8085
+  Timeout: 2000
+
+UserRpcConf:
+  Target: k8s://micro-mall/user-service:8086
+  Timeout: 2000

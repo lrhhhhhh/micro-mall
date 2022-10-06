@@ -1,0 +1,400 @@
+{
+	"info": {
+		"_postman_id": "551f767e-4663-496c-9184-f319e0cd6a96",
+		"name": "MicroMall",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "register user",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"lrhaoo\",\n    \"password\": \"lrhaoo\",\n    \"passwordConfirm\": \"lrhaoo\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BasePath}}/user/register",
+					"host": [
+						"{{BasePath}}"
+					],
+					"path": [
+						"user",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login user",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"lrhaoo\",\n    \"password\": \"lrhaoo\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BasePath}}/user/login",
+					"host": [
+						"{{BasePath}}"
+					],
+					"path": [
+						"user",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get user info",
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "value",
+							"value": "{{jwt}}",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "Authorization",
+							"type": "string"
+						},
+						{
+							"key": "in",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BasePath}}/user/1",
+					"host": [
+						"{{BasePath}}"
+					],
+					"path": [
+						"user",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create stock",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"goodsId\": 1,\n    \"count\": 20000\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{BasePath}}/stock/create",
+					"protocol": "http",
+					"host": [
+						"{{BasePath}}"
+					],
+					"path": [
+						"stock",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update stock",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"stockId\": 1,\n    \"goodsId\": 1,\n    \"count\": 100\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{BasePath}}/stock/update",
+					"protocol": "http",
+					"host": [
+						"{{BasePath}}"
+					],
+					"path": [
+						"stock",
+						"update"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get stock",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{BasePath}}/stock/1",
+					"protocol": "http",
+					"host": [
+						"{{BasePath}}"
+					],
+					"path": [
+						"stock",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create activity",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"activityName\": \"first seckill\",\n    \"goodsId\": 1,\n    \"stockId\": 1,\n    \"startTime\": 1662549646,\n    \"endTime\": 2662549646,\n    \"total\": 100000000,\n    \"status\": 0,\n    \"buyLimit\": 1,\n    \"buyProbability\": 0.999\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{BasePath}}/activity/create",
+					"protocol": "http",
+					"host": [
+						"{{BasePath}}"
+					],
+					"path": [
+						"activity",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update activity",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"activityId\": 1,\n    \"activityName\": \"second seckill\",\n    \"goodsId\": 1,\n    \"stockId\": 1,\n    \"startTime\": 1662549646,\n    \"endTime\": 2662549646,\n    \"total\": 1000000,\n    \"status\": 0,\n    \"buyLimit\": 1,\n    \"buyProbability\": 0.00001\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{BasePath}}/activity/update",
+					"protocol": "http",
+					"host": [
+						"{{BasePath}}"
+					],
+					"path": [
+						"activity",
+						"update"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get activity",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{BasePath}}/activity/1",
+					"protocol": "http",
+					"host": [
+						"{{BasePath}}"
+					],
+					"path": [
+						"activity",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "seckill-tcc",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"uid\": 2,\n    \"activityId\": 1,\n    \"goodsId\": 1,\n    \"stockId\": 1,\n    \"buyCnt\": 1,\n    \"accessTime\": 0\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BasePath}}/seckill",
+					"host": [
+						"{{BasePath}}"
+					],
+					"path": [
+						"seckill"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "seckill-二阶段消息",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"uid\": 2,\n    \"activityId\": 1,\n    \"goodsId\": 1,\n    \"stockId\": 1,\n    \"buyCnt\": 1,\n    \"accessTime\": 0\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BasePath}}/seckill2",
+					"host": [
+						"{{BasePath}}"
+					],
+					"path": [
+						"seckill2"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "BasePath",
+			"value": "localhost:8082",
+			"type": "default"
+		},
+		{
+			"key": "jwt",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "ingress ",
+			"value": "192.168.49.2",
+			"type": "default"
+		}
+	]
+}

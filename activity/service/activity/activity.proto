@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+option go_package = "./activity";
+package activity;
+
+message ActivityListReq {
+  int64 limit = 1;
+  int64 offset = 2;
+}
+
+message ActivityModel {
+  int64 Id = 1;
+  string ActivityName = 2;
+  int64 GoodsId = 3;
+  int64 StockId = 4;
+  int64 StartTime = 5;
+  int64 EndTime   = 6;
+  int64 Total     = 7;
+  int64 Status    = 8;
+  int64 BuyLimit  = 9;
+  double BuyProbability = 10;
+}
+
+
+message ActivityReq {
+  int64 Id = 1;
+  string ActivityName = 2;
+  int64 GoodsId = 3;
+  int64 StockId = 4;
+  int64 StartTime = 5;
+  int64 EndTime   = 6;
+  int64 Total     = 7;
+  int64 Status    = 8;
+  int64 BuyLimit  = 9;
+  double BuyProbability = 10;
+}
+
+message ActivityListResp {
+  repeated ActivityModel activityList=1;
+  int64 Count=2;
+}
+
+message ActivityResp {
+  ActivityModel activity=1;
+}
+
+message CreateActivityResp {
+  int64 ActivityId = 1;
+  string Message = 2;
+}
+
+message BaseActivityResp {
+  string Message = 1;
+}
+
+service Activity {
+  rpc CreateActivity(ActivityReq) returns(CreateActivityResp);
+  rpc UpdateActivity(ActivityReq) returns(BaseActivityResp);
+  rpc GetActivity(ActivityReq) returns(ActivityResp);
+  rpc DeleteActivity(ActivityReq) returns(BaseActivityResp);
+  rpc GetActivityList(ActivityListReq) returns(ActivityListResp);
+}

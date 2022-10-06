@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+option go_package="./order";
+package order;
+
+message OrderModel {
+  int64 Id = 1;
+  int64 Uid = 2;
+  int64 ActivityId = 3;
+  int64 GoodsId = 4;
+  int64 StockId = 5;
+  int64 Count = 6;
+  int64 Status = 7;
+  int64 CreatedAt = 8;
+  int64 UpdatedAt = 9;
+  int64 DeletedAt = 10;
+}
+
+message BaseOrderResp {
+  string message = 1;
+}
+
+message OrderListReq {
+  uint64 uid = 1;
+  uint64 limit = 2;
+  uint64 offset = 3;
+}
+
+message OrderListResp {
+  repeated OrderModel OrderList=1;
+  int64 Count=2;
+}
+
+service Order {
+  rpc CreateOrder(OrderModel) returns(OrderModel);
+  rpc CreateOrderRevert(OrderModel) returns(OrderModel);
+  rpc CreateOrderAndDeductAsync(OrderModel) returns(OrderModel);   // create order and send deduct message to mq
+  rpc UpdateOrder(OrderModel) returns(BaseOrderResp);
+  rpc GetOrder(OrderModel) returns(OrderModel);
+  rpc DeleteOrder(OrderModel) returns(BaseOrderResp);
+  rpc GetOrderList(OrderListReq) returns(OrderListResp);
+}

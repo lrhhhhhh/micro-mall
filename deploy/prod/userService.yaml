@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: user
+  name: user
+  namespace: micro-mall
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user
+  template:
+    metadata:
+      labels:
+        app: user
+    spec:
+      serviceAccountName: micro-mall
+      containers:
+        - name: user
+          image: user:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8086
+          env:
+            - name: MYSQL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: mysql-host
+                  name: micro-mall-config
+            - name: MYSQL_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: mysql-port
+                  name: micro-mall-config
+            - name: MYSQL_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: mysql-user
+                  name: micro-mall-config
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: mysql-password
+                  name: micro-mall-config
+            - name: JAEGER_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: jaeger-host
+                  name: micro-mall-config
+            - name: JAEGER_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: jaeger-port
+                  name: micro-mall-config
+          readinessProbe:
+            tcpSocket:
+              port: 8086
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8086
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 300m
+              memory: 256Mi
+            limits:
+              cpu: 700m
+              memory: 1024Mi
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: micro-mall
+spec:
+  selector:
+    app: user
+  type: ClusterIP
+  ports:
+    - name: tcp
+      port: 8086
+      targetPort: 8086
+      protocol: TCP

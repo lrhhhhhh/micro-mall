@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package user;
+option go_package="./user";
+
+message LoginReq {
+  // @inject_tag: json:"user_name" form:"user_name"
+  string UserName=1;
+  // @inject_tag: json:"password" form:"password"
+  string Password=2;
+}
+
+message RegisterReq {
+  // @inject_tag: json:"user_name" form:"user_name"
+  string UserName=1;
+  // @inject_tag: json:"password" form:"password"
+  string Password=2;
+  // @inject_tag: json:"password_confirm" form:"password_confirm"
+  string PasswordConfirm=3;
+}
+
+message GetUserReq {
+  uint64 Uid=1;
+}
+
+message UserResponse {
+  UserModel User=1;
+  string Message=2;
+  uint32 Code=3;
+}
+
+message UserModel{
+  // @inject_tag: json:"id"
+  uint64 ID=1;
+  // @inject_tag: json:"user_name"
+  string UserName=2;
+  // @inject_tag: json:"created_at"
+  int64 CreatedAt=3;
+  // @inject_tag: json:"updated_at"
+  int64 UpdatedAt=4;
+  // @inject_tag: json:"deleted_at"
+  int64 DeletedAt=5;
+}
+
+
+service User {
+  rpc Login(LoginReq) returns(UserResponse);
+  rpc Register(RegisterReq) returns(UserResponse);
+  rpc GetUser(GetUserReq) returns(UserResponse);
+}

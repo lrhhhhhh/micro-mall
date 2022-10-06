@@ -1,0 +1,29 @@
+Name: seckill.rpc
+ListenOn: 0.0.0.0:8084
+Timeout: 2000
+Telemetry:
+  Name: seckill.rpc
+  Endpoint: http://${JAEGER_HOST}:${JAEGER_PORT}/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
+
+DB:
+  DataSource: ${MYSQL_USER}:${MYSQL_PASSWORD}@tcp(${MYSQL_HOST}:${MYSQL_PORT})/activity?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+Redis:
+  Host: ${REDIS_HOST}:${REDIS_PORT}
+DtmServer:
+  Addr: k8s://micro-mall/dtm-service:36790
+
+OrderRpcConf:
+  Target: k8s://micro-mall/order-service:8083
+  Timeout: 2000
+
+StockRpcConf:
+  Target: k8s://micro-mall/stock-service:8085
+  Timeout: 2000
+
+
+StockDeductLua: "StockDeductLua"
+StockDeductSha1: "1"
+
+

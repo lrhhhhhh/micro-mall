@@ -1,0 +1,40 @@
+Name: order.rpc
+ListenOn: 0.0.0.0:8083
+
+Telemetry:
+  Name: order.rpc
+  Endpoint: http://${JAEGER_HOST}:${JAEGER_PORT}/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
+DB:
+  DataSource: ${MYSQL_USER}:${MYSQL_PASSWORD}@tcp(${MYSQL_HOST}:${MYSQL_PORT})/order?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+
+KafkaCommon:
+  api.version.request: true
+  bootstrap.servers: "kafka-cluster-kafka-bootstrap:9092"
+  security.protocol: "PLAINTEXT"
+  ssl.ca.location: ""
+  sasl.username: ""
+  sasl.password: ""
+  sasl.mechanisms: ""
+
+KafkaProducer:
+  acks: "1"
+  batch.size: 100000
+  compression.type: lz4
+  delivery.timeout.ms: 3000
+  linger.ms: 100
+  message.max.bytes: 1000000
+  retries: 0x7fffffff
+  retry.backoff.ms: 1000
+  sticky.partitioning.linger.ms: 1000
+
+KafkaConsumer:
+  auto.offset.reset: "latest"
+  enable.auto.commit: "false"
+  fetch.max.bytes: 1024000
+  group.id: "order-cancel-group"
+  heartbeat.interval.ms: 3000
+  max.partition.fetch.bytes: 256000
+  max.poll.interval.ms: 120000
+  session.timeout.ms: 30000

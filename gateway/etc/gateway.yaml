@@ -1,0 +1,42 @@
+Name: gateway
+Host: 0.0.0.0
+Port: 8082
+Timeout: 3000
+CpuThreshold: 950
+Telemetry:
+  Name: gateway.rpc
+  Endpoint: http://0.0.0.0:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
+
+Auth:
+  AccessSecret: niganmaaiyoujinitaimei
+  AccessExpire: 3600
+
+UserRpcConf:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: user.rpc
+  Timeout: 2000
+
+SeckillRpcConf:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: seckill.rpc
+  Timeout: 2000
+
+ActivityRpcConf:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: activity.rpc
+  Timeout: 2000
+
+StockRpcConf:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: stock.rpc
+  Timeout: 2000

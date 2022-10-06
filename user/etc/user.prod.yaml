@@ -1,0 +1,9 @@
+Name: user.rpc
+ListenOn: 0.0.0.0:8086
+Telemetry:
+  Name: stock.rpc
+  Endpoint: http://${JAEGER_HOST}:${JAEGER_PORT}/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
+DB:
+  DataSource: ${MYSQL_USER}:${MYSQL_PASSWORD}@tcp(${MYSQL_HOST}:${MYSQL_PORT})/user?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai

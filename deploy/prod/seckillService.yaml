@@ -1,0 +1,108 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: seckill
+  name: seckill
+  namespace: micro-mall
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: seckill
+  template:
+    metadata:
+      labels:
+        app: seckill
+    spec:
+      serviceAccountName: micro-mall
+      containers:
+        - name: seckill
+          image: seckill:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8084
+          env:
+            - name: MYSQL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: mysql-host
+                  name: micro-mall-config
+            - name: MYSQL_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: mysql-port
+                  name: micro-mall-config
+            - name: MYSQL_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: mysql-user
+                  name: micro-mall-config
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: mysql-password
+                  name: micro-mall-config
+            - name: JAEGER_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: jaeger-host
+                  name: micro-mall-config
+            - name: JAEGER_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: jaeger-port
+                  name: micro-mall-config
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: redis-host
+                  name: micro-mall-config
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: redis-port
+                  name: micro-mall-config
+          readinessProbe:
+            tcpSocket:
+              port: 8084
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8084
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 300m
+              memory: 256Mi
+            limits:
+              cpu: 700m
+              memory: 1024Mi
+      initContainers:
+        - name: init-order-service
+          image: busybox:1.28
+          command: [ 'sh', '-c', "until nslookup order-service.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for order; sleep 1; done" ]
+        - name: init-stock-service
+          image: busybox:1.28
+          command: [ 'sh', '-c', "until nslookup stock-service.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for stock; sleep 1; done" ]
+        - name: init-dtm-service
+          image: busybox:1.28
+          command: [ 'sh', '-c', "until nslookup dtm-service.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for dtm; sleep 1; done" ]
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: seckill-service
+  namespace: micro-mall
+spec:
+  selector:
+    app: seckill
+  type: ClusterIP
+  ports:
+    - name: tcp
+      port: 8084
+      targetPort: 8084
+      protocol: TCP

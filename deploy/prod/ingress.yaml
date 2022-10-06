@@ -1,0 +1,38 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: micro-mall
+  name: micro-mall-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /seckill
+        pathType: Prefix
+        backend:
+          service:
+            name: gateway-service
+            port:
+              number: 8082
+      - path: /user
+        pathType: Prefix
+        backend:
+          service:
+            name: gateway-service
+            port:
+              number: 8082
+      - path: /stock
+        pathType: Prefix
+        backend:
+          service:
+            name: gateway-service
+            port:
+              number: 8082
+      - path: /activity
+        pathType: Prefix
+        backend:
+          service:
+            name: gateway-service
+            port:
+              number: 8082

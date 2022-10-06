@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: gateway
+  name: gateway
+  namespace: micro-mall
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+    spec:
+      serviceAccountName: micro-mall
+      containers:
+        - name: gateway
+          image: gateway:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8082
+          env:
+            - name: MYSQL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: mysql-host
+                  name: micro-mall-config
+            - name: MYSQL_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: mysql-port
+                  name: micro-mall-config
+            - name: MYSQL_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: mysql-user
+                  name: micro-mall-config
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: mysql-password
+                  name: micro-mall-config
+            - name: JAEGER_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: jaeger-host
+                  name: micro-mall-config
+            - name: JAEGER_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: jaeger-port
+                  name: micro-mall-config
+          readinessProbe:
+            tcpSocket:
+              port: 8082
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8082
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 300m
+              memory: 256Mi
+            limits:
+              cpu: 700m
+              memory: 1024Mi
+      initContainers:
+        - name: init-seckill-service
+          image: busybox:1.28
+          command: [ 'sh', '-c', "until nslookup seckill-service.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for seckill; sleep 1; done" ]
+        - name: init-activity-service
+          image: busybox:1.28
+          command: [ 'sh', '-c', "until nslookup activity-service.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for activity; sleep 1; done" ]
+        - name: init-stock-service
+          image: busybox:1.28
+          command: [ 'sh', '-c', "until nslookup stock-service.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for stock; sleep 1; done" ]
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-service
+  namespace: micro-mall
+spec:
+  selector:
+    app: gateway
+  type: ClusterIP
+  ports:
+    - name: tcp
+      port: 8082
+      targetPort: 8082
+      protocol: TCP

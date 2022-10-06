@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: jaeger
+  name: jaeger
+  namespace: micro-mall
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jaeger
+  template:
+    metadata:
+      labels:
+        app: jaeger
+    spec:
+      serviceAccountName: micro-mall
+      containers:
+        - name: jaeger
+          image: jaegertracing/all-in-one:1.32
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 16686
+            - containerPort: 14268
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger-service
+  namespace: micro-mall
+spec:
+  selector:
+    app: jaeger
+  type: ClusterIP
+  ports:
+    - name: jaeger-port
+      port: 14268
+      targetPort: 14268
+      protocol: TCP
+    - name: web-ui
+      port: 16686
+      targetPort: 16686

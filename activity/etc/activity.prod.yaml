@@ -1,0 +1,14 @@
+Name: activity.rpc
+ListenOn: 0.0.0.0:8081
+
+Telemetry:
+  Name: activity.rpc
+  Endpoint: http://${JAEGER_HOST}:${JAEGER_PORT}/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
+
+DB:
+  DataSource: ${MYSQL_USER}:${MYSQL_PASSWORD}@tcp(${MYSQL_HOST}:${MYSQL_PORT})/activity?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+
+Redis:
+  Host: ${REDIS_HOST}:${REDIS_PORT}

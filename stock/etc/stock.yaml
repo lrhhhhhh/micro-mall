@@ -1,0 +1,54 @@
+Name: stock.rpc
+ListenOn: 127.0.0.1:8085
+Etcd:
+  Hosts:
+  - 127.0.0.1:2379
+  Key: stock.rpc
+#Telemetry:
+#  Name: stock.rpc
+#  Endpoint: http://localhost:14268/api/traces
+#  Sampler: 1.0
+#  Batcher: jaeger
+DB:
+  DataSource: root:SecretKey@tcp(127.0.0.1:3306)/stock?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+Redis:
+  Host: "localhost:6379"
+
+OrderRpcConf:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: order.rpc
+  Timeout: 2000
+
+StockDeductTopic: "stock-deduct"
+
+KafkaCommon:
+  ApiVersionRequest: true
+  BootstrapServers: "172.17.0.1:9092"
+  SecurityProtocol: "PLAINTEXT"
+  SslCaLocation: ""
+  SaslUsername: ""
+  SaslPassword: ""
+  SaslMechanism: ""
+
+KafkaProducer:
+  Acks: "1"
+  BatchSize: 100000
+  CompressionType: lz4
+  DeliveryTimeoutMs: 3000
+  LingerMs: 100
+  MessageMaxBytes: 1000000
+  Retries: 0x7fffffff
+  RetryBackoffMs: 1000
+  StickyPartitioningLingerMs: 1000
+
+KafkaConsumer:
+  AutoOffsetReset: "latest"
+  EnableAutoCommit: "false"
+  FetchMaxBytes: 1024000
+  GroupId: "stock-deduct-group"
+  HeartbeatIntervalMs: 3000
+  MaxPartitionFetchBytes: 256000
+  MaxPollIntervalMs: 120000
+  SessionTimeoutMs: 30000

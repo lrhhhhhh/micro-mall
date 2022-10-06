@@ -1,0 +1,127 @@
+version: '3.5'
+
+networks:
+  backend:
+    driver: bridge
+
+services:
+  etcd:
+    image: bitnami/etcd:3.5.4
+    environment:
+      - TZ=${TZ}
+      - ALLOW_NONE_AUTHENTICATION=yes
+    ports:
+      - "${ETCD_PORT}:2379"
+    networks:
+      - backend
+    restart: always
+
+  mysql:
+    image: mysql:8.0.30
+    environment:
+      - TZ=${TZ}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    privileged: true
+    volumes:
+      - ${DATA_PATH_HOST}/mysql:/var/lib/mysql
+      - ./mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+    ports:
+      - "${MYSQL_PORT}:3306"
+    networks:
+      - backend
+    restart: always
+
+  redis:
+    image: redis:7.0.4
+    environment:
+      - TZ=${TZ}
+    privileged: true
+    volumes:
+      - ${DATA_PATH_HOST}/redis:/data
+    ports:
+      - "${REDIS_PORT}:6379"
+    networks:
+      - backend
+    restart: always
+
+  prometheus:
+    image: bitnami/prometheus:2.33.5
+    environment:
+      - TZ=${TZ}
+    privileged: true
+    volumes:
+      - ./prometheus/prometheus.yml:/opt/bitnami/prometheus/conf/prometheus.yml
+    ports:
+      - "${PROMETHEUS_PORT}:9090"
+    networks:
+      - backend
+    restart: always
+
+  grafana:
+    image: grafana/grafana:8.4.5
+    environment:
+      - TZ=${TZ}
+    ports:
+      - "${GRAFANA_PORT}:3000"
+    networks:
+      - backend
+    restart: always
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.32
+    environment:
+      - TZ=${TZ}
+    ports:
+      - "${JAEGER_WEB_UI_PORT}:16686"
+      - "${JAEGER_PORT}:14268"
+    networks:
+      - backend
+    restart: always
+
+  zookeeper:
+    image: bitnami/zookeeper:3.7
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 20000
+        hard: 40000
+    ports:
+      - '2181:2181'
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    volumes:
+      - ./data/zookeeper:/bitnami/zookeeper
+    restart: always
+
+  kafka:
+    image: bitnami/kafka:3.2.3
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 20000
+        hard: 40000
+    ports:
+      - '9092:9092'
+      - '9999:9999'
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://${DOCKER_HOST_IP:-127.0.0.1}:9092            # 给客户端访问的地址
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes                     # 允许使用PLAINTEXT协议(镜像中默认为关闭,需要手动开启)
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=false        # 关闭自动创建 topic 功能
+      - KAFKA_CFG_LOG_RETENTION_HOURS=6                  # 全局消息过期时间 6 小时(测试时可以设置短一点)
+      - JMX_PORT=9999                                   # 开启JMX监控
+    volumes:
+      - ./data/kafka:/bitnami/kafka
+    depends_on:
+      - zookeeper
+    restart: always
+  dtm:
+    image: yedf/dtm:1.16
+    network_mode: "host"
+    entrypoint:
+      - "/app/dtm/dtm"
+      - "-c=/app/dtm/configs/conf.yml"
+    volumes:
+      - ./dtm/conf.yml:/app/dtm/configs/conf.yml

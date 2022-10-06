@@ -1,0 +1,6 @@
+**/.idea/
+**/deploy/dev/data/
+./dtm/dtm.bolt
+./dtm/.idea/
+*/logs/
+*/nohup.out

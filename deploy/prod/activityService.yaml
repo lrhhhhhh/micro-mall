@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: activity
+  name: activity
+  namespace: micro-mall
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: activity
+  template:
+    metadata:
+      labels:
+        app: activity
+    spec:
+      serviceAccountName: micro-mall
+      containers:
+        - name: activity
+          image: activity:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8081
+          env:
+            - name: MYSQL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: mysql-host
+                  name: micro-mall-config
+            - name: MYSQL_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: mysql-port
+                  name: micro-mall-config
+            - name: MYSQL_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: mysql-user
+                  name: micro-mall-config
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: mysql-password
+                  name: micro-mall-config
+            - name: JAEGER_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: jaeger-host
+                  name: micro-mall-config
+            - name: JAEGER_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: jaeger-port
+                  name: micro-mall-config
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: redis-host
+                  name: micro-mall-config
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: redis-port
+                  name: micro-mall-config
+          readinessProbe:
+            tcpSocket:
+              port: 8081
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8081
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 300m
+              memory: 256Mi
+            limits:
+              cpu: 700m
+              memory: 1024Mi
+      initContainers:
+        - name: init-mysql-service
+          image: busybox:1.28
+          command: [ 'sh', '-c', "until nslookup mysql-service.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for mysql; sleep 1; done" ]
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: activity-service
+  namespace: micro-mall
+spec:
+  selector:
+    app: activity
+  type: ClusterIP
+  ports:
+    - name: tcp
+      port: 8081
+      targetPort: 8081
+      protocol: TCP

@@ -1,0 +1,236 @@
+syntax = "v1"
+
+info(
+	title: "api-gateway"
+	desc: "seckill api gateway"
+	version: "v1"
+)
+
+type (
+	User {
+		Uid      uint64 `json:"uid"`
+		Username string `json:"username"`
+	}
+
+	LoginReq {
+		UserName string `json:"username"`
+		Password string `json:"password"`
+	}
+	LoginResp {
+		User         User   `json:"user"`
+		AccessToken  string `json:"accessToken"`
+		AccessExpire int64  `json:"accessExpire"`
+		RefreshAfter int64  `json:"refreshAfter"`
+	}
+
+	RegisterReq {
+		UserName        string `json:"username"`
+		Password        string `json:"password"`
+		PasswordConfirm string `json:"passwordConfirm"`
+	}
+
+	BaseResp {
+		Message string `json:"message"`
+	}
+
+	GetUserReq {
+		Uid uint64 `path:"uid"`
+	}
+	GetUserResp {
+		Message string `json:"message"`
+		User    User   `json:"user"`
+	}
+
+	Stock {
+		StockId int64 `json:"stockId"`
+		GoodsId int64 `json:"goodsId"`
+		Count   int64 `json:"count"`
+	}
+	CreateStockReq {
+		GoodsId int64 `json:"goodsId"`
+		Count   int64 `json:"count"`
+	}
+	CreateStockResp {
+		StockId int64  `json:"stockId"`
+		Message string `json:"message"`
+	}
+	UpdateStockReq {
+		StockId int64 `json:"stockId"`
+		GoodsId int64 `json:"goodsId"`
+		Count   int64 `json:"count"`
+	}
+	UpdateStockResp {
+		Message string `json:"message"`
+	}
+
+	GetStockReq {
+		StockId int64 `path:"stockId"`
+	}
+	GetStockResp {
+		Message string `json:"message"`
+		Stock   Stock  `json:"stock"`
+	}
+
+	Activity {
+		Id             int64   `json:"activityId"`
+		ActivityName   string  `json:"activityName"`
+		GoodsId        int64   `json:"goodsId"`
+		StockId        int64   `json:"stockId"`
+		StartTime      int64   `json:"startTime"`
+		EndTime        int64   `json:"endTime"`
+		Total          int64   `json:"total"`
+		Status         int64   `json:"status"`
+		BuyLimit       int64   `json:"buyLimit"`
+		BuyProbability float64 `json:"buyProbability"`
+	}
+	CreateActivityReq {
+		ActivityName   string  `json:"activityName"`
+		GoodsId        int64   `json:"goodsId"`
+		StockId        int64   `json:"stockId"`
+		StartTime      int64   `json:"startTime"`
+		EndTime        int64   `json:"endTime"`
+		Total          int64   `json:"total"`
+		Status         int64   `json:"status"`
+		BuyLimit       int64   `json:"buyLimit"`
+		BuyProbability float64 `json:"buyProbability"`
+	}
+	CreateActivityResp {
+		Message    string `json:"message"`
+		ActivityId int64  `json:"activityId"`
+	}
+	UpdateActivityReq {
+		Id             int64   `json:"activityId"`
+		ActivityName   string  `json:"activityName"`
+		GoodsId        int64   `json:"goodsId"`
+		StockId        int64   `json:"stockId"`
+		StartTime      int64   `json:"startTime"`
+		EndTime        int64   `json:"endTime"`
+		Total          int64   `json:"total"`
+		Status         int64   `json:"status"`
+		BuyLimit       int64   `json:"buyLimit"`
+		BuyProbability float64 `json:"buyProbability"`
+	}
+	UpdateActivityResp {
+		Message string `json:"message"`
+	}
+	GetActivityReq {
+		ActivityId int64 `path:"activityId"`
+	}
+	GetActivityResp {
+		Message  string   `json:"message"`
+		Activity Activity `json:"activity"`
+	}
+
+	SeckillReq {
+		Uid        int64 `json:"uid"`
+		ActivityId int64 `json:"activityId"`
+		GoodsId    int64 `json:"goodsId"`
+		StockId    int64 `json:"stockId"`
+		BuyCnt     int64 `json:"buyCnt"`
+		AccessTime int64 `json:"accessTime"`
+	}
+	SeckillResp {
+		Code    int64  `json:"code"`
+		Message string `json:"message"`
+	}
+)
+
+// user service
+@server (
+	group: user
+)
+service gateway {
+	@doc "登录"
+	@handler login
+	post /user/login (LoginReq) returns (LoginResp)
+	
+	@doc "注册"
+	@handler register
+	post /user/register (RegisterReq) returns (BaseResp)
+}
+
+@server (
+	jwt: Auth
+	middleware: AuthMiddleware
+	group: user
+)
+service gateway {
+	@doc "获取用户详细信息"
+	@handler getUser
+	get /user/:uid(GetUserReq)  returns (GetUserResp)
+}
+
+// stock service
+@server (
+	group: stock
+)
+service gateway {
+	@doc "创建库存"
+	@handler createStock
+	post /stock/create(CreateStockReq) returns(CreateStockResp)
+}
+
+@server (
+	group: stock
+)
+service gateway {
+	@doc "更新库存"
+	@handler updateStock
+	post /stock/update(UpdateStockReq) returns(UpdateStockResp)
+}
+
+@server (
+	group: stock
+)
+service gateway {
+	@doc "获取库存"
+	@handler getStock
+	get /stock/:stockId(GetStockReq) returns(GetStockResp)
+}
+
+// activity service
+@server (
+	group: activity
+)
+service gateway {
+	@doc "创建秒杀活动"
+	@handler createActivity
+	post /activity/create(CreateActivityReq) returns(CreateActivityResp)
+}
+
+@server (
+	group: activity
+)
+service gateway {
+	@doc "更新秒杀活动"
+	@handler updateActivity
+	post /activity/update(UpdateActivityReq) returns(UpdateActivityResp)
+}
+
+@server (
+	group: activity
+)
+service gateway {
+	@doc "获取秒杀活动信息"
+	@handler getActivity
+	get /activity/:activityId(GetActivityReq) returns(GetActivityResp)
+}
+
+// seckill service
+@server (
+	group: seckill
+)
+service gateway {
+	@doc "秒杀-tcc模式"
+	@handler seckill
+	post /seckill(SeckillReq) returns(SeckillResp)
+}
+
+@server (
+	group: seckill
+)
+service gateway {
+	@doc "秒杀-二阶段消息"
+	@handler seckill2
+	post /seckill2(SeckillReq) returns(SeckillResp)
+}

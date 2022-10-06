@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+option go_package = "./stock";
+package stock;
+
+
+message DeductStockReq {
+  int64 stockId = 1;
+  int64 goodsId = 2;
+  int64 count = 3;
+}
+
+message DeductStockResp {
+  string message = 1;
+}
+
+
+service stock {
+  rpc deductStock(DeductStockReq) returns(DeductStockResp);
+  rpc deductStockRevert(DeductStockReq)returns(DeductStockResp);
+  rpc deductStockFast(DeductStockReq) returns(DeductStockResp);
+  rpc deductStockFastRevert(DeductStockReq)returns(DeductStockResp);
+}
