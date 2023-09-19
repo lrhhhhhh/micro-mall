@@ -9,20 +9,23 @@ goctl:
 ########################################################################################################################
 
 # 通过docker-compose的方式运行依赖软件：redis、mysql、etcd、zookeeper、kafka
+.PHONY:
 up:
 	@cd ./deploy/dev && mkdir -p data && cd data && mkdir -p kafka zookeeper redis mysql && chmod 777 kafka zookeeper redis mysql
 	@cd ./deploy/dev && pwd && docker-compose up -d
 
-
+.PHONY:
 down:
 	@cd ./deploy/dev && pwd && docker-compose down
 
 
+.PHONY:
 docker-compose-initdb:   # 必须保证mysql容器正在运行，保证mysql容器名字为dev_mysql_1，账号和密码和容器的一致
 	@docker cp ./dummy.sql dev_mysql_1:/
 	@docker exec dev_mysql_1 sh -c 'mysql -uroot -pSecretKey < dummy.sql'
 
 
+.PHONY:
 rm-none:
 	@docker rmi $$(docker images | grep "none" | awk '{print $3}')
 
@@ -30,6 +33,7 @@ rm-none:
 # 运行程序，需要注意程序可能启动失败，通过ps -ef | grep 'go run' 查看
 # 查看gateway程序是否正确运行: lsof -i:8082
 # 查看日志文件：nohup.out 和 logs
+.PHONY:
 run:
 	@cd ./activity && bash -c "nohup go run activity.go > /dev/null 2>&1 &"
 	@cd ./user && bash -c "nohup go run user.go > /dev/null 2>&1 &"
@@ -43,6 +47,7 @@ run:
 
 
 # 停止所有程序
+.PHONY:
 stop:
 	@lsof -i tcp:8081 | awk '/activity/ {print $$2}' | xargs -r kill
 	@lsof -i tcp:8082 | awk '/gateway/ {print $$2}' | xargs  -r kill
@@ -54,6 +59,7 @@ stop:
 
 
 # 删除本地开发的日志
+.PHONY:
 delete-logs:
 	@cd ./activity && rm -rf ./logs
 	@cd ./gateway && rm -rf ./logs
@@ -65,6 +71,7 @@ delete-logs:
 
 
 # 使用wrk进行压力测试
+.PHONY:
 wrk_test:
 	@docker run --rm --network="host" -it -v $(PWD):/data skandyla/wrk -d30s -t8 -c400   -s wrk.lua http://localhost:8082/seckill2
 
@@ -74,6 +81,7 @@ wrk_test:
 ########################################################################################################################
 
 # 构建镜像，每个镜像分阶段构建，中间阶段会产生GB级别的none镜像，如果磁盘不够，可以把注释去掉，每构建一个镜像就清理一次。
+.PHONY:
 build-images:
 	@#docker rmi $$(docker images | grep "none" | awk '{print $3}') || true
 	@cd ./activity && docker build . -t activity:latest
@@ -90,6 +98,7 @@ build-images:
 
 
 # 将需要的镜像下载到宿主机的docker中，然后将所有需要的的镜像load到minikube容器中
+.PHONY:
 load:
 	@echo "running..."
 	@minikube image rm activity:latest || true
@@ -120,6 +129,7 @@ load:
 
 
 # 在minikube上运行所有程序
+.PHONY:
 apply:
 	@cd ./deploy/prod && minikube kubectl -- apply -f namespace.yaml
 	@cd ./deploy/prod && minikube kubectl -- apply -f configMap.yaml
@@ -140,11 +150,13 @@ apply:
 
 
 # 给 minikube 开启 ingress
+.PHONY:
 minikube-ingress:
 	@minikube addons enable ingress
 
 
 # install strimzi kafka operator (注意是latest)
+.PHONY:
 kafka-cluster:
 	@minikube kubectl -- create namespace kafka --dry-run=client -o yaml | kubectl apply -f -
 	@minikube kubectl -- create -f 'https://strimzi.io/install/latest?namespace=kafka' -n kafka
@@ -152,32 +164,39 @@ kafka-cluster:
 	@minikube kubectl -- wait kafka/kafka-cluster --for=condition=Ready -n kafka
 
 
+.PHONY:
 test-kafka-producer:
 	@minikube kubectl -- -n kafka run kafka-producer -ti --image=quay.io/strimzi/kafka:0.31.1-kafka-3.2.3 --rm=true --restart=Never -- bin/kafka-console-producer.sh --bootstrap-server kafka-cluster-kafka-bootstrap:9092 --topic my-topic
 
 
+.PHONY:
 test-kafka-consumer:
 	@minikube kubectl -- -n kafka run kafka-consumer -ti --image=quay.io/strimzi/kafka:0.31.1-kafka-3.2.3 --rm=true --restart=Never -- bin/kafka-console-consumer.sh --bootstrap-server kafka-cluster-kafka-bootstrap:9092 --topic my-topic --from-beginning
 
 # 初始化数据库
 # 注意，执行命令后，根据提示按下回车键，然后将dummy.sql中的文本内容粘贴到mysql-cli中并执行
+.PHONY:
 initdb:
 	@minikube kubectl -- run -it --rm --image=mysql:8.0.30 --restart=Never mysql-client -n micro-mall -- mysql -h mysql-service -pSecretKey
 
 
 # 删除minikube中命名空间micro-mall内的所有内容
+.PHONY:
 delete-micromall:
 	@minikube kubectl -- delete all --all -n=micro-mall
 
+.PHONY:
 info:
 	@minikube kubectl -- get pod -n=micro-mall
 	@minikube kubectl -- get svc -n=micro-mall
 	@minikube kubectl -- get ingress -n=micro-mall
 
 
+.PHONY:
 minikube-delete-pv:     # 删除pv和pvc，仅在测试用使用
 	@minikube kubectl -- delete pv --all
 
 
+.PHONY:
 minikube-delete-pvc:
 	@minikube kubectl -- delete pvc --all
